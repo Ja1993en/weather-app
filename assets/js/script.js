@@ -1,68 +1,73 @@
 var input = document.querySelector('.input_text');
-var icon = document.querySelector('.icon');
 var main = document.querySelector('#name');
+var humidity = document.querySelector('.humidity');
 var temp = document.querySelector('.temp');
-var wind = document.querySelector('.wind');
 var desc = document.querySelector('.desc');
 var clouds = document.querySelector('.clouds');
-var button= document.querySelector('.submit');
+var wind = document.querySelector('.wind');
+var button = document.querySelector('.submit'); 
+var weatherContainer = document.getElementById('container');
+
+// date.innerText = moment().format('l');
+button.addEventListener('click',function() {
+    var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast?q=' + input.value + '&appid=50a7aa80fa492fa92e874d23ad061374&units=imperial';
+
+    fetch(requestUrl)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+           
+            console.log(data)
+            for (let i = 1; i < 6; i++) {
+                var cityName = document.createElement('h3');
+                var weatherIcon = document.createElement('img')
+                var cityTemp = document.createElement('li');
+                var cityDesc = document.createElement('li');
+                var cityWind = document.createElement('li');
+
+                var tempValue = data.list[i].main.temp;
+                var nameValue = data.city.name;
+                var descValue = data.list[i].weather[0].description;
+                var windValue = data.list[i].wind.speed
+                var iconValue = data.list[i].weather[0].icon
+                
+                // console.log(descValue)
+                    cityName.textContent = nameValue;
+                    cityTemp.textContent = "Temp: "+tempValue;
+                    cityDesc.textContent = "desc: "+descValue;
+                    cityWind.textContent = "Windspeed: "+windValue;
+                    weatherIcon.src ="https://openweathermap.org/img/wn/"+ iconValue + ".png";
 
 
-button.addEventListener('click', function(name){
-fetch('https://api.openweathermap.org/data/2.5/weather?q='+input.value+'&appid=de1772d8463221105b9952651b1a38c7')
-.then(response => response.json())
-.then(data => {
-    console.log(data)
-  var tempValue = data['main']['temp'];
-  var nameValue = data['name'];
-  var descValue = data['weather'][0]['description'];
-  var iconValue = data['weather'][0]['icon'];
-  var windValue = data['wind']['speed'];
+//                 desc = "Desc - " + descValue;
+//                 temp = "Temp - " + tempValue;
+                    weatherContainer.append(cityName);
+                    weatherContainer.appendChild(weatherIcon);
+                    weatherContainer.appendChild(cityTemp);
+                    cityTemp.appendChild(cityWind);
+                    cityWind.appendChild(cityDesc);
 
-  wind.innerHTML = "Windspeed - "+windValue;
-  icon.innerHTML = iconValue;
-  main.innerHTML = nameValue;
-  desc.innerHTML = "Desc - "+descValue;
-  temp.innerHTML = "Temp - "+tempValue;
-  input.value ="";
+                input.value = "";
+                
+                // var weatherContainer = document.createElement('div');
+                // var weatherCard = document.createElement('container');
+                // var nameValue = document.createElement('h3');
+                
+              
+                // nameValue.textContent = data.city.name;
+                // weatherCard.append(nameValue);
+            
+                // weatherContainer.appendChild(nameValue);
+                // createTableRow.appendChild(tableData);
+                // weatherContainer.appendChild(createTableRow);
+                
 
-})
+            }
 
-.catch(err => alert("Wrong city name!"));
-})
-
-// var iconValue = data['weather'][0]['icon'];
-// //   var timeValue = data['sys']
-//   var windValue = data['wind']['speed'];
-//   main.innerHTML = nameValue;
-//   wind.innerHTML = "Wind - "+windValue;
-//   icon.innerHTML = iconValue;
-
-
-
-// icons: {
-//     'Rain': require('../assets/regnerisch.png'),
-//     'Clear': require('../assets/sonne.png'),
-//     'Clouds': require('../assets/wolkig.png'),
-//     'Snow': require('../assets/schnee.png'),
-//     'Drizzle':require('../assets/regnerisch.png'),
-//     'Thunderstorm':require('../assets/regnerisch.png')
-// },          
-//  fetch('https://api.openweathermap.org/data/2.5/weather?lat=32.779167&lon=-96.808891&appid=de1772d8463221105b9952651b1a38c7')
-// .then ((response) =>{
-//     return response.json();
-// })
-// .then ((data) =>{
-
-//     // for(var i = 0; i < data.length; i++){
-//        console.log(data)
+        });
     
-//     // }
-  
-// })
-// .catch(function(error){
+        
 
-//     console.error('You have entered wrong city')
-
-// });
+});
 

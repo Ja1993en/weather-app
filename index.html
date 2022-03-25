@@ -1,21 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./assets/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-        integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
-
-    <title>Document</title>
-</head>
-
-<body>
-    <header>Weather Forecast</header>
-    <!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,10 +20,16 @@
     </div>
   </div>
 
-  <div class="container">
+  <!-- <div id="myDiv"></div> -->
+  <div id="container">
+   <img class="icon"></img>
+      
+    
     <div class="card">
       <h1 class="name" id="name"></h1>
-      <img class="icon"></div>
+      <div id="currentDate"></div>
+      <div id="time"></div>
+      <p class="weathericon"></p>
       <p class="temp"></p>
       <p class="humidity"></p>
       <p class="wind"></p>
@@ -47,12 +37,8 @@
       <p class="desc"></p>
     </div>
   </div>
-<!-- <script src="app.js"></script> -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="./assets/js/script.js"></script>
 </body>
-</html>
-        
-    </section>
-   <script src="./assets/js/script.js"></script>
-</body>
-
 </html>
