@@ -8,9 +8,10 @@ var wind = document.querySelector('.wind');
 var button = document.querySelector('.submit'); 
 var weatherContainer = document.getElementById('container');
 
+day = ['monday','thuesday','wensday','thursday','friday','saturday','sunday' ];
 // date.innerText = moment().format('l');
 button.addEventListener('click',function() {
-    var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast?q=' + input.value + '&appid=50a7aa80fa492fa92e874d23ad061374&units=imperial';
+    var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast/?q=' + input.value + '&appid=50a7aa80fa492fa92e874d23ad061374&units=imperial';
 
     fetch(requestUrl)
         .then(function (response) {
@@ -19,34 +20,50 @@ button.addEventListener('click',function() {
         .then(function (data) {
            
             console.log(data)
-            for (let i = 1; i < 6; i++) {
-                var cityName = document.createElement('h3');
+            for (let i =1; i < 40; i+=8) {
+             
+                var cityName = document.createElement('h2');
+                var date = document.createElement('h3')
                 var weatherIcon = document.createElement('img')
                 var cityTemp = document.createElement('li');
                 var cityDesc = document.createElement('li');
                 var cityWind = document.createElement('li');
+                // const forecastDateEl = document.createElement("li");
+                
 
-                var tempValue = data.list[i].main.temp;
+                var tempValue = Math.round(data.list[i].main.temp);
                 var nameValue = data.city.name;
                 var descValue = data.list[i].weather[0].description;
-                var windValue = data.list[i].wind.speed
+                var windValue = Math.round(data.list[i].wind.speed);
                 var iconValue = data.list[i].weather[0].icon
+                var dateValue = data.list[i].dt
+                var day =new Date(dateValue*1000);
+                var dayName = day.toDateString();
+                
+
+               
+            
                 
                 // console.log(descValue)
                     cityName.textContent = nameValue;
-                    cityTemp.textContent = "Temp: "+tempValue;
-                    cityDesc.textContent = "desc: "+descValue;
-                    cityWind.textContent = "Windspeed: "+windValue;
+                    cityTemp.textContent = "Temp - "+tempValue;
+                    cityDesc.textContent = "desc - "+descValue;
+                    cityWind.textContent = "Windspeed - "+windValue+" Mph";
                     weatherIcon.src ="https://openweathermap.org/img/wn/"+ iconValue + ".png";
-
-
+                    date.textContent =  day.toDateString();
+                    
+                    
 //                 desc = "Desc - " + descValue;
 //                 temp = "Temp - " + tempValue;
                     weatherContainer.append(cityName);
+                    weatherContainer.append(date);
                     weatherContainer.appendChild(weatherIcon);
                     weatherContainer.appendChild(cityTemp);
                     cityTemp.appendChild(cityWind);
                     cityWind.appendChild(cityDesc);
+                    // cityDesc.appendChild(date);
+                 
+
 
                 input.value = "";
                 
