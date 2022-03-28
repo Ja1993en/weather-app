@@ -1,90 +1,130 @@
 var input = document.querySelector('.input_text');
-var main = document.querySelector('#name');
-var humidity = document.querySelector('.humidity');
-var temp = document.querySelector('.temp');
-var desc = document.querySelector('.desc');
-var clouds = document.querySelector('.clouds');
-var wind = document.querySelector('.wind');
-var button = document.querySelector('.submit'); 
-var weatherContainer = document.getElementById('container');
+const button = document.querySelector('.submit');
+const cityName = document.querySelector('.city-name')
+const coord = document.querySelector('.coord')
+const current = document.querySelector('.current-weather');
+var weatherContainer = document.querySelector('.current-container');
+// const lat = document.createElement('h1');
+const word = document.createElement('a');
+const num = document.createElement('a');
+const city = document.createElement('h1');
 
-day = ['monday','thuesday','wensday','thursday','friday','saturday','sunday' ];
-// date.innerText = moment().format('l');
-button.addEventListener('click',function() {
+
+var weatherDashboard = () => {
     var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast/?q=' + input.value + '&appid=50a7aa80fa492fa92e874d23ad061374&units=imperial';
-
+  
     fetch(requestUrl)
-        .then(function (response) {
+        .then(response => {
             return response.json();
         })
-        .then(function (data) {
+        .then(data =>{
+            console.log(data); 
+         
+            
+// getting coordinates to set in next API
+            word.textContent = data.city.coord.lat;
+            num.textContent = data.city.coord.lon;
+           city.textContent = data.city.name;
+
+            
+            cityName.appendChild(city);
+            cityName .appendChild(word);
+            coord.append(num);
+            weatherApp(word,num);
+            input = "";
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
+const weatherApp = () => {
+    console.log(word.textContent);
+    console.log(num.textContent);
+    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${word.textContent}&lon=${num.textContent}&exclude=hourly&appid=a16a60861e1b33976ee908b3b92d981f&units=imperial`)
+    .then(response =>{
+        return response.json();
+    })
+    .then(data =>{
+        console.log(data);
+        for (let i=0; i < 6; i++){
+
+            //setting Day Names 
+            var allDays= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            var d = new Date(data.daily[i].dt * 1000); // to get the DateTime. 
+            var dayName = allDays[d.getDay()]; // It will give day index, and based on index we can get day name from the array. 
+            console.log(dayName)
+            
+            //setting all elements
+            var minTemp = document.createElement('li');
+            var maxTemp = document.createElement('li');
+            var humidity = document.createElement('li');
+            var windSpeed = document.createElement('li');
+            var uv = document.createElement('li');
+            var weatherIcon = document.createElement('img');
+            var days = document.createElement('h1')
            
-            console.log(data)
-            for (let i =1; i < 40; i+=8) {
-             
-                var cityName = document.createElement('h2');
-                var date = document.createElement('h3')
-                var weatherIcon = document.createElement('img')
-                var cityTemp = document.createElement('li');
-                var cityDesc = document.createElement('li');
-                var cityWind = document.createElement('li');
-                // const forecastDateEl = document.createElement("li");
-                
+            //Getting information from API
+            minTempValue = Math.round(data.daily[i].temp.min);
+            maxTempValue = Math.round(data.daily[i].temp.max);
+            humidityValue = data.daily[i].humidity
+            windSpeedValue = data.daily[i].wind_speed;
+            uvValue = data.daily[i].uvi;
+            iconValue = data.daily[i].weather[0].icon;
+            dayNameValue = dayName;
 
-                var tempValue = Math.round(data.list[i].main.temp);
-                var nameValue = data.city.name;
-                var descValue = data.list[i].weather[0].description;
-                var windValue = Math.round(data.list[i].wind.speed);
-                var iconValue = data.list[i].weather[0].icon
-                var dateValue = data.list[i].dt
-                var day =new Date(dateValue*1000);
-                var dayName = day.toDateString();
-                
-
-               
-            
-                
-                // console.log(descValue)
-                    cityName.textContent = nameValue;
-                    cityTemp.textContent = "Temp - "+tempValue;
-                    cityDesc.textContent = "desc - "+descValue;
-                    cityWind.textContent = "Windspeed - "+windValue+" Mph";
-                    weatherIcon.src ="https://openweathermap.org/img/wn/"+ iconValue + ".png";
-                    date.textContent =  day.toDateString();
-                    
-                    
-//                 desc = "Desc - " + descValue;
-//                 temp = "Temp - " + tempValue;
-                    weatherContainer.append(cityName);
-                    weatherContainer.append(date);
-                    weatherContainer.appendChild(weatherIcon);
-                    weatherContainer.appendChild(cityTemp);
-                    cityTemp.appendChild(cityWind);
-                    cityWind.appendChild(cityDesc);
-                    // cityDesc.appendChild(date);
-                 
+            //setting all the Values
+            days.textContent = dayName
+            minTemp.textContent = " Min Temp - "+ minTempValue+ " °";
+            maxTemp.textContent = " Max Temp - "+ maxTempValue+ " °";
+            humidity.textContent = "Humidity "+humidityValue;
+            windSpeed.textContent = "Windspeed - "+windSpeedValue+"Mph";
+            uv.textContent = uvValue;
+           weatherIcon.src ="https://openweathermap.org/img/wn/"+ iconValue + ".png";
+       
+          current.appendChild(weatherContainer);
+          weatherContainer.appendChild(days);
+          weatherContainer.appendChild(weatherIcon);
+          weatherContainer.appendChild(minTemp);
+          weatherContainer.appendChild(maxTemp);
+          weatherContainer.appendChild(humidity);
+          weatherContainer.appendChild(windSpeed);
+          weatherContainer.appendChild(uv);
+          console.log(uv.textContent);
+        //   uv.style.color ="red"
 
 
-                input.value = "";
-                
-                // var weatherContainer = document.createElement('div');
-                // var weatherCard = document.createElement('container');
-                // var nameValue = document.createElement('h3');
-                
-              
-                // nameValue.textContent = data.city.name;
-                // weatherCard.append(nameValue);
-            
-                // weatherContainer.appendChild(nameValue);
-                // createTableRow.appendChild(tableData);
-                // weatherContainer.appendChild(createTableRow);
+          
+        //   let uv = document.createElement("li");
+                        
+                        // When UV Index is good, shows green, when ok shows yellow, when bad shows red
+                      
+                        if ( data.daily[i].uvi < 4 ) {
+                            uv.style.color="green";
+ 
+                        }
+                        else if (data.daily[i].uvi < 7) {
+                            uv.style.color = "yellow";
+                         } else {
+                            uv.style.color = "red";
+                        }
+                      
                 
 
-            }
 
-        });
-    
         
+            
+        }
+        // city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
+    })
+    .catch(err =>{
+        console.log(err);
+    })
+}
 
-});
+button.addEventListener('click',function(){
+ weatherDashboard();
+
+})
 
