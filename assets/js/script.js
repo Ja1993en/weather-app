@@ -1,130 +1,143 @@
-var input = document.querySelector('.input_text');
-const button = document.querySelector('.submit');
-const cityName = document.querySelector('.city-name')
-const coord = document.querySelector('.coord')
-const current = document.querySelector('.current-weather');
-var weatherContainer = document.querySelector('.current-container');
-// const lat = document.createElement('h1');
-const word = document.createElement('a');
-const num = document.createElement('a');
-const city = document.createElement('h1');
+function initPage() {
+    const cityInput = document.getElementById("enter-city");
+    const searchInput = document.getElementById("search-button");
+    const clearInput = document.getElementById("clear-history");
+    const nameInput = document.getElementById("city-name");
+    const currentPicInput = document.getElementById("current-pic");
+    const currentTempInput = document.getElementById("temperature");
+    const currentHumidityEl = document.getElementById("humidity");
+    const currentWindInput= document.getElementById("wind-speed");
+    const currentUV = document.getElementById("UV-index");
+    const historyEl = document.getElementById("history");
+    var fivedayEl = document.getElementById("fiveday-header");
+    var todayweatherEl = document.getElementById("today-weather");
+    let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
 
+    // Assigning a unique API to a variable
+    const APIKey = "50a7aa80fa492fa92e874d23ad061374";
 
-var weatherDashboard = () => {
-    var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast/?q=' + input.value + '&appid=50a7aa80fa492fa92e874d23ad061374&units=imperial';
-  
-    fetch(requestUrl)
-        .then(response => {
-            return response.json();
-        })
-        .then(data =>{
-            console.log(data); 
-         
-            
-// getting coordinates to set in next API
-            word.textContent = data.city.coord.lat;
-            num.textContent = data.city.coord.lon;
-           city.textContent = data.city.name;
+    function getWeather(cityName) {
+        // Execute a current weather get request from open weather api
+        let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIKey;
+        axios.get(queryURL)
+            .then(function (response) {
 
-            
-            cityName.appendChild(city);
-            cityName .appendChild(word);
-            coord.append(num);
-            weatherApp(word,num);
-            input = "";
+                todayweatherEl.classList.remove("d-none");
 
-        })
-        .catch(err => {
-            console.log(err);
-        })
-}
-
-const weatherApp = () => {
-    console.log(word.textContent);
-    console.log(num.textContent);
-    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${word.textContent}&lon=${num.textContent}&exclude=hourly&appid=a16a60861e1b33976ee908b3b92d981f&units=imperial`)
-    .then(response =>{
-        return response.json();
-    })
-    .then(data =>{
-        console.log(data);
-        for (let i=0; i < 6; i++){
-
-            //setting Day Names 
-            var allDays= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            var d = new Date(data.daily[i].dt * 1000); // to get the DateTime. 
-            var dayName = allDays[d.getDay()]; // It will give day index, and based on index we can get day name from the array. 
-            console.log(dayName)
-            
-            //setting all elements
-            var minTemp = document.createElement('li');
-            var maxTemp = document.createElement('li');
-            var humidity = document.createElement('li');
-            var windSpeed = document.createElement('li');
-            var uv = document.createElement('li');
-            var weatherIcon = document.createElement('img');
-            var days = document.createElement('h1')
-           
-            //Getting information from API
-            minTempValue = Math.round(data.daily[i].temp.min);
-            maxTempValue = Math.round(data.daily[i].temp.max);
-            humidityValue = data.daily[i].humidity
-            windSpeedValue = data.daily[i].wind_speed;
-            uvValue = data.daily[i].uvi;
-            iconValue = data.daily[i].weather[0].icon;
-            dayNameValue = dayName;
-
-            //setting all the Values
-            days.textContent = dayName
-            minTemp.textContent = " Min Temp - "+ minTempValue+ " °";
-            maxTemp.textContent = " Max Temp - "+ maxTempValue+ " °";
-            humidity.textContent = "Humidity "+humidityValue;
-            windSpeed.textContent = "Windspeed - "+windSpeedValue+"Mph";
-            uv.textContent = uvValue;
-           weatherIcon.src ="https://openweathermap.org/img/wn/"+ iconValue + ".png";
-       
-          current.appendChild(weatherContainer);
-          weatherContainer.appendChild(days);
-          weatherContainer.appendChild(weatherIcon);
-          weatherContainer.appendChild(minTemp);
-          weatherContainer.appendChild(maxTemp);
-          weatherContainer.appendChild(humidity);
-          weatherContainer.appendChild(windSpeed);
-          weatherContainer.appendChild(uv);
-          console.log(uv.textContent);
-        //   uv.style.color ="red"
-
-
-          
-        //   let uv = document.createElement("li");
+                // Parse response to display current weather
+                const currentDate = new Date(response.data.dt * 1000);
+                const day = currentDate.getDate();
+                const month = currentDate.getMonth() + 1;
+                const year = currentDate.getFullYear();
+                nameInput.innerHTML = response.data.name + " (" + month + "/" + day + "/" + year + ") ";
+                let weatherPic = response.data.weather[0].icon;
+                currentPicInput.setAttribute("src", "https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
+                currentPicInput.setAttribute("alt", response.data.weather[0].description);
+                currentTempInput .innerHTML = "Temperature: " + k2f(response.data.main.temp) + " &#176F";
+                currentHumidityEl.innerHTML = "Humidity: " + response.data.main.humidity + "%";
+                currentWindInput.innerHTML = "Wind Speed: " + response.data.wind.speed + " MPH";
+                
+                // Get the UV Index
+                let lat = response.data.coord.lat;
+                let lon = response.data.coord.lon;
+                let UVQueryURL = "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey + "&cnt=1";
+                axios.get(UVQueryURL)
+                    .then(function (response) {
+                        let UVIndex = document.createElement("span");
                         
                         // When UV Index is good, shows green, when ok shows yellow, when bad shows red
-                      
-                        if ( data.daily[i].uvi < 4 ) {
-                            uv.style.color="green";
- 
+                        if (response.data[0].value < 4 ) {
+                            UVIndex.setAttribute("class", "badge badge-success");
                         }
-                        else if (data.daily[i].uvi < 7) {
-                            uv.style.color = "yellow";
-                         } else {
-                            uv.style.color = "red";
+                        else if (response.data[0].value < 8) {
+                            UVIndex.setAttribute("class", "badge badge-warning");
                         }
-                      
+                        else {
+                            UVIndex.setAttribute("class", "badge badge-danger");
+                        }
+                        console.log(response.data[0].value)
+                        UVIndex.innerHTML = response.data[0].value;
+                        currentUV.innerHTML = "UV Index: ";
+                        currentUV.append(UVIndex);
+                    });
                 
+                // Get 5 day forecast for this city
+                let cityID = response.data.id;
+                let forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?id=" + cityID + "&appid=" + APIKey;
+                axios.get(forecastQueryURL)
+                    .then(function (response) {
+                        fivedayEl.classList.remove("d-none");
+                        
+                        //   response to display forecast for next 5 days
+                        const forecastEls = document.querySelectorAll(".forecast");
+                        for (i = 0; i < forecastEls.length; i++) {
+                            forecastEls[i].innerHTML = "";
+                            const forecastIndex = i * 8 + 4;
+                            const forecastDate = new Date(response.data.list[forecastIndex].dt * 1000);
+                            const forecastDay = forecastDate.getDate();
+                            const forecastMonth = forecastDate.getMonth() + 1;
+                            const forecastYear = forecastDate.getFullYear();
+                            const forecastDateEl = document.createElement("p");
+                            forecastDateEl.setAttribute("class", "mt-3 mb-0 forecast-date");
+                            forecastDateEl.innerHTML = forecastMonth + "/" + forecastDay + "/" + forecastYear;
+                            forecastEls[i].append(forecastDateEl);
 
+                            // Icon for current weather
+                            const forecastWeatherEl = document.createElement("img");
+                            forecastWeatherEl.setAttribute("src", "https://openweathermap.org/img/wn/" + response.data.list[forecastIndex].weather[0].icon + "@2x.png");
+                            forecastWeatherEl.setAttribute("alt", response.data.list[forecastIndex].weather[0].description);
+                            forecastEls[i].append(forecastWeatherEl);
+                            const forecastTempEl = document.createElement("p");
+                            forecastTempEl.innerHTML = "Temp: " + k2f(response.data.list[forecastIndex].main.temp) + " &#176F";
+                            forecastEls[i].append(forecastTempEl);
+                            const forecastHumidityEl = document.createElement("p");
+                            forecastHumidityEl.innerHTML = "Humidity: " + response.data.list[forecastIndex].main.humidity + "%";
+                            forecastEls[i].append(forecastHumidityEl);
+                        }
+                    })
+            });
+    }
 
-        
-            
+    // Get history from local storage 
+    searchInput.addEventListener("click", function () {
+        const searchTerm = cityInput.value;
+        getWeather(searchTerm);
+        searchHistory.push(searchTerm);
+        localStorage.setItem("search", JSON.stringify(searchHistory));
+        renderSearchHistory();
+    })
+
+    // Clear History from local storage button
+    clearInput.addEventListener("click", function () {
+        localStorage.clear();
+        searchHistory = [];
+        renderSearchHistory();
+    })
+
+    function k2f(K) {
+        return Math.floor((K - 273.15) * 1.8 + 32);
+    }
+
+    function renderSearchHistory() {
+        historyEl.innerHTML = "";
+        for (let i = 0; i < searchHistory.length; i++) {
+            const historyItem = document.createElement("input");
+            historyItem.setAttribute("type", "text");
+            historyItem.setAttribute("readonly", true);
+            historyItem.setAttribute("class", "form-control d-block bg-white");
+            historyItem.setAttribute("value", searchHistory[i]);
+            historyItem.addEventListener("click", function () {
+                getWeather(historyItem.value);
+            })
+            historyEl.append(historyItem);
         }
-        // city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
-    })
-    .catch(err =>{
-        console.log(err);
-    })
+    }
+
+    renderSearchHistory();
+    if (searchHistory.length > 0) {
+        getWeather(searchHistory[searchHistory.length - 1]);
+    }
+    
 }
 
-button.addEventListener('click',function(){
- weatherDashboard();
-
-})
-
+initPage();
